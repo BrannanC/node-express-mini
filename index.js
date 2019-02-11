@@ -46,17 +46,22 @@ server.delete('/api/users/:id', (req, res) => {
 
 server.post('/api/users', (req, res) => {
     const user = req.body;
-    db
+
+    if(user.name && user.bio ){
+        db
         .insert(user)
-        .then(user => {
-            user.name && user.bio ?
-            res.status(201).json({ user })
-            : res.status(400).json({ errorMessage: "Please provide name and bio"});
+        .then(result => {
+            db
+            .findById(result.id)
+            .then(user => res.status(201).json(user))         
         })
         .catch(({ code, message}) => {
             res.status(code).json({ error: "There was an error while saving the user to the database",
              message });
         })
+    } else {
+        res.status(400).json({ errorMessage: "Please provide name and bio"});
+    }
 });
 
 server.put('/api/users/:id', (req, res) => {
